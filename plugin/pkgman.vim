@@ -1,3 +1,11 @@
+if !has('nvim')
+	echohl ErrorMsgj
+	echomsg "pkgman.nvim: error: Vim is not supported"
+	echomsg "pkgman.nvim: Abort"
+	echohl Normal
+	finish
+endif
+
 function! pkgman#setup()
 	call pkgman#determine_package_manager()
 	call pkgman#init()
@@ -240,7 +248,13 @@ function! pkgman#render()
 endfunction
 
 function! pkgman#open()
-	let buf = nvim_create_buf(v:false, v:true)
+	if has('nvim')
+		let buf = nvim_create_buf(v:false, v:true)
+	else
+		let buf = bufadd('pkgman.nvim menu')
+		call bufload(buf)
+	endif
+	echomsg "buf is: ".buf.";"
 	if has('nvim')
 		let ui=nvim_list_uis()[0]
 		let ui_width = ui.width
@@ -270,15 +284,8 @@ function! pkgman#open()
 					\ }
 		let win = nvim_open_win(buf, 1, opts)
 	else
-		let opts = {'minwidth': width,
-					\ 'minheight': height,
-					\ 'maxwidth': width,
-					\ 'maxheight': height,
-					\ 'style': 'minimal',
-					\ 'focusable': v:true,
-					\ 'zindex': 35,
-					\ }
-		let win = popup_create('pkgman.nvim menu', opts)
+		new
+		let win = win_getid()
 	endif
 	setlocal filetype=pkgman
 	setlocal buftype=nofile
