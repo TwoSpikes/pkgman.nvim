@@ -257,17 +257,29 @@ function! pkgman#open()
 	if ui_height <# height
 		let height = ui_height
 	endif
-	let opts = {'relative': 'editor',
-                \ 'width': width,
-                \ 'height': height,
-                \ 'col': (ui_width/2) - (width/2),
-                \ 'row': (ui_height/2) - (height/2),
-                \ 'anchor': 'NW',
-                \ 'style': 'minimal',
-				\ 'focusable': v:true,
-				\ 'zindex': 35,
-                \ }
-    let win = nvim_open_win(buf, 1, opts)
+	if has('nvim')
+		let opts = {'relative': 'editor',
+					\ 'width': width,
+					\ 'height': height,
+					\ 'col': (ui_width/2) - (width/2),
+					\ 'row': (ui_height/2) - (height/2),
+					\ 'anchor': 'NW',
+					\ 'style': 'minimal',
+					\ 'focusable': v:true,
+					\ 'zindex': 35,
+					\ }
+		let win = nvim_open_win(buf, 1, opts)
+	else
+		let opts = {'minwidth': width,
+					\ 'minheight': height,
+					\ 'maxwidth': width,
+					\ 'maxheight': height,
+					\ 'style': 'minimal',
+					\ 'focusable': v:true,
+					\ 'zindex': 35,
+					\ }
+		let win = popup_create('pkgman.nvim menu', opts)
+	endif
 	setlocal filetype=pkgman
 	setlocal buftype=nofile
 	setlocal bufhidden=hide
